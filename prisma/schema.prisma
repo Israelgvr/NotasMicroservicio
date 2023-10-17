@@ -1,0 +1,239 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+  model   ventas {         
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+ 
+  codigo    String
+  cantidad  Int
+  
+  createdAt DateTime @default(now())
+   @@map("ventas")
+  }
+model Filial {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  nombre String
+  codigo String
+
+  localidad String
+  direccion String
+  celular Int?
+  telefono Int?
+  posicion Int @default(0)
+  enlaceWhatsApp String?
+  enlaceFacebook String?
+  enlaceYouTube String?
+  enlaceInstagram String?
+  enlaceTikTok String?
+  notas Nota[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([nombre, codigo])
+  @@map("filiales")
+}
+
+model PagosMens{
+ id String @id @default(auto()) @map("_id") @db.ObjectId
+  EstudianteId String ///uno a muchos mensualidade
+  fechaLimite DateTime
+  fechaPago DateTime
+  estadoPago String
+  descuento Float
+  Monto Float
+  Plataforma Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("PagosMens")
+}
+
+model compras {
+  id  String   @id @default(auto()) @map("_id") @db.ObjectId
+  nombre String
+  apellidoPaterno String?
+  apellidoMaterno String?
+  email String?
+  cedula Int @unique
+  cedulaComplemento String?
+  celular Int?
+  nombreL String
+  codigoL String
+  categoriaL String
+  precioL     Float
+  cantidadL Float
+  total      Float
+  fechaCompra DateTime
+  
+}
+
+model biblioteca{
+ id String @id @default(auto()) @map("_id") @db.ObjectId
+  nombre String
+  codigo String @unique
+  categoria  String 
+  proveedor String 
+  stock  Float
+  precio Float 
+  fecha  DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@map("biblioteca")
+}
+model tiposEstudiante {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  nombre      String
+  posicion    Int
+  descuento   Int
+  createdAt   DateTime  @map("createdAt") @db.Timestamp
+  updatedAt   DateTime  @map("updatedAt") @db.Timestamp
+}
+model Usb {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  nombre String
+  codigo String
+  categoria  String 
+  proveedor String 
+  stock  Float
+  precio Float 
+  fecha  DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@map("Usbs")
+}
+model Estudiante {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  activo Boolean @default(true)
+  matricula String? @unique
+  personaId String @db.ObjectId @unique
+  persona Persona @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  notas Nota[]
+  notasNivel Notanivel[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("estudiantes")
+}
+model Persona {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  nombre String
+  apellidoPaterno String?
+  apellidoMaterno String?
+  email String?
+  cedula Int @unique
+  cedulaComplemento String?
+  celular Int?
+  telefono Int?
+  fechaNacimiento DateTime? @db.Date
+  contactoNombre String?
+  contactoCelular Int?
+  contactoTelefono Int?
+  gestionDiploma Int?
+  gestionEgreso Int?
+  grado String?
+  nacionalidad String?
+  destinoActual String?
+  direccion String?
+  carnetCossmil String? @unique
+  carnetMilitar String? @unique
+  contactoCarnetCossmil String?
+  contactoCarnetMilitar String?
+  estudiante Estudiante?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("personas")
+}
+model Libro {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  nombre String
+  codigo String
+  editorial String?
+  edicion Int?
+  stock Int @default(0)
+  imagen String?
+
+  notas Nota[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("libros")
+}
+
+model Nivel {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  nombre String
+  codigo String
+  posicion Int @default(0)
+  notasNivel Notanivel[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("niveles")
+}
+
+
+model Nota {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  notaExamen     Float
+  notaTrabajos     Float
+  notaParticipacion     Float
+  notaAsistencia     Float
+  notaOPI     Float
+  notaParcial     Float
+  notaRetest Float
+  promedioFinal Float
+  estudianteId String @db.ObjectId
+  estudiante Estudiante @relation(fields: [estudianteId], references: [id], onDelete: Cascade)
+  libroId String @db.ObjectId
+  libro Libro  @relation(fields: [libroId], references: [id])
+  
+  filialId String @db.ObjectId
+  filial Filial @relation(fields: [filialId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("notas")
+}
+
+model Notanivel {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  notaNivel     Float
+  notaRetest     Float
+  estudianteId String @db.ObjectId
+  estudiante Estudiante @relation(fields: [estudianteId], references: [id], onDelete: Cascade)
+  nivelesId String @db.ObjectId
+  niveles Nivel @relation(fields: [nivelesId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("notaNivel")
+}
+
+model Firma {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  nombre String
+  cargo String
+  filialId String @db.ObjectId
+   @@unique([cargo, filialId])
+  @@map("firmas")
+}
+
+
+model PreInscripcion {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  nombre String
+  apellidoPaterno String?
+  apellidoMaterno String?
+  cedula Int
+  expedicion String
+  email String
+  celular Int?
+  telefono Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@map("preinscripciones")
+}
